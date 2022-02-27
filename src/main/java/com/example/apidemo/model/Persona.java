@@ -7,14 +7,13 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.List;
 
-@Data @AllArgsConstructor @NoArgsConstructor
+@Data @NoArgsConstructor
 @Entity (name = "person")
 public class Persona {
 
     @Id @GeneratedValue
     private long id;
 
-    @Column(name = "name")
     private String nombre;
 
     @OneToMany(mappedBy = "dueño", cascade = CascadeType.ALL, orphanRemoval = true)

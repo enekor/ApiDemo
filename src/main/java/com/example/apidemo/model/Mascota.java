@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Data @NoArgsConstructor @AllArgsConstructor
+@Data @NoArgsConstructor
 @Entity(name = "pet")
 public class Mascota {
 
@@ -15,9 +15,7 @@ public class Mascota {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "master")
     private Persona dueño;
 
-    @Column(name = "name")
     private String nombre;
 }

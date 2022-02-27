@@ -1,34 +1,40 @@
 package com.example.apidemo.controller;
 
+import com.example.apidemo.dto.PersonaDTO;
+import com.example.apidemo.mapper.PersonaMapper;
 import com.example.apidemo.model.Persona;
-import com.example.apidemo.repository.PersonaRepository;
+import com.example.apidemo.service.PersonaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@RestController
 @RequiredArgsConstructor
-@Controller
 public class PersonController {
 
-    private final PersonaRepository repo;
+    private final PersonaService repo;
+    private final PersonaMapper mapper;
 
     @GetMapping("/personas")
-    public ResponseEntity<List<Persona>> selectAllPersonas(){
-        List<Persona> ans = repo.findAll();
-        if(ans.isEmpty()){
+    public ResponseEntity<?> selectAllPersonas(@PageableDefault(size = 10,page = 0)Pageable pageable){
+        Page<Persona> personas = repo.selectAllPageable(pageable);
+
+        if(personas.isEmpty()){
             return ResponseEntity.notFound().build();
         }else{
-            return ResponseEntity.ok(ans);
+            return ResponseEntity.ok(personas.stream().collect(Collectors.toList()));
         }
     }
 
     @GetMapping("/personas/{id}")
     public ResponseEntity<Persona> selectpersonaById(@PathVariable long id){
-        Optional<Persona> ans = repo.findById(id);
+        Optional<Persona> ans = repo.selectById(id);
         if(ans.isPresent()){
             return ResponseEntity.ok(ans.get());
         }else{
@@ -37,10 +43,10 @@ public class PersonController {
     }
 
     @PostMapping("/personas")
-    public ResponseEntity<Persona> insertNewPersona(@RequestBody Persona p){
-        Persona ans = repo.save(p);
-        if(ans !=null){
-            return ResponseEntity.ok(ans);
+    public ResponseEntity<Persona> insertNewPersona(@RequestBody PersonaDTO p){
+        Optional<Persona> ans = repo.save(mapper.toModel(p));
+        if(ans.isPresent()){
+            return ResponseEntity.ok(ans.get());
         }else{
             return ResponseEntity.badRequest().build();
         }
@@ -49,9 +55,9 @@ public class PersonController {
     @PutMapping("/personas/{id}")
     public ResponseEntity<Persona> updatePersona(@RequestBody Persona p,@PathVariable long id){
         if(repo.existsById(id)){
-            Persona ans = repo.save(p);
-            if(ans != null){
-                return ResponseEntity.ok(ans);
+            Optional<Persona> ans = repo.save(p);
+            if(ans.isPresent()){
+                return ResponseEntity.ok(ans.get());
             }else{
                 return ResponseEntity.badRequest().build();
             }
@@ -63,12 +69,12 @@ public class PersonController {
     @DeleteMapping("/personas/{id}")
     public ResponseEntity<Persona> deletePersona(@PathVariable long id){
         if(repo.existsById(id)){
-            Persona deleted = repo.getById(id);
-            repo.deleteById(id);
+            Optional<Persona> deleted = repo.selectById(id);
+            repo.delete(id);
             if(!repo.existsById(id)){
                 return ResponseEntity.badRequest().build();
             }else{
-                return ResponseEntity.ok(deleted);
+                return ResponseEntity.ok(deleted.get());
             }
         }else{
             return ResponseEntity.notFound().build();
