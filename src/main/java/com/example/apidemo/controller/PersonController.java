@@ -1,7 +1,7 @@
 package com.example.apidemo.controller;
 
 import com.example.apidemo.dto.PersonaDTO;
-import com.example.apidemo.mapper.PersonaMapper;
+//import com.example.apidemo.mapper.PersonaMapper;
 import com.example.apidemo.model.Persona;
 import com.example.apidemo.service.PersonaService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class PersonController {
 
     private final PersonaService repo;
-    private final PersonaMapper mapper;
+//    private final PersonaMapper mapper;
 
     @GetMapping("/personas")
     public ResponseEntity<?> selectAllPersonas(@PageableDefault(size = 10,page = 0)Pageable pageable){
@@ -42,9 +42,22 @@ public class PersonController {
         }
     }
 
+    @GetMapping(value = "/personas", params = "nombre")
+    public ResponseEntity<?> findBynombre(@RequestParam("nombre") String nombre, Pageable pageable){
+
+        Page<Persona> personas = repo.findByNombre(nombre, pageable);
+
+        if(personas.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        else{
+            return ResponseEntity.ok(personas.stream().collect(Collectors.toList()));
+        }
+    }
+
     @PostMapping("/personas")
-    public ResponseEntity<Persona> insertNewPersona(@RequestBody PersonaDTO p){
-        Optional<Persona> ans = repo.save(mapper.toModel(p));
+    public ResponseEntity<Persona> insertNewPersona(@RequestBody Persona p){
+        Optional<Persona> ans = repo.save(p);
         if(ans.isPresent()){
             return ResponseEntity.ok(ans.get());
         }else{

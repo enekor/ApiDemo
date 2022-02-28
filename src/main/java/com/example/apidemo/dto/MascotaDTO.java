@@ -1,6 +1,5 @@
 package com.example.apidemo.dto;
 
-import com.example.apidemo.model.Persona;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

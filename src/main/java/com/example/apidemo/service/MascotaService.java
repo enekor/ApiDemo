@@ -38,4 +38,8 @@ public class MascotaService {
     public boolean existsById(long id) {
         return repo.existsById(id);
     }
+
+    public Page<Mascota> findByNombre(String nombre, Pageable pageable){
+        return repo.findByNombre(nombre, pageable);
+    }
 }

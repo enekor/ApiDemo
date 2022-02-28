@@ -37,4 +37,8 @@ public class PersonaService{
     public boolean existsById(long id) {
         return repo.existsById(id);
     }
+
+    public Page<Persona> findByNombre(String nombre, Pageable pageable){
+        return repo.findByNombre(nombre,pageable);
+    }
 }

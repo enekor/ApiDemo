@@ -1,5 +1,6 @@
 package com.example.apidemo.controller;
 
+//import com.example.apidemo.mapper.MascotaMapper;
 import com.example.apidemo.model.Mascota;
 import com.example.apidemo.service.MascotaService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 public class MascotaController {
 
     private final MascotaService repo;
+//    private final MascotaMapper mapper;
 
     @GetMapping("/mascotas")
     public ResponseEntity<List<Mascota>> selectAllMascotas(@PageableDefault(page = 0,size = 10) Pageable pageable){
@@ -34,6 +36,18 @@ public class MascotaController {
     public ResponseEntity<Mascota> selectMascotaById(@PathVariable long id){
         Optional<Mascota> ans = repo.selectById(id);
         return ans.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(value = "/mascotas", params = "nombre")
+    public ResponseEntity<?> findByNombre(String nombre, Pageable pageable){
+        Page<Mascota> mascotas = repo.findByNombre(nombre, pageable);
+
+        if(mascotas.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        else{
+            return ResponseEntity.ok(mascotas.stream().collect(Collectors.toList()));
+        }
     }
 
     @PostMapping("/mascotas")
